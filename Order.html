@@ -98,9 +98,11 @@
    currentArticles.push({ name: name, cat: cat, qty: 0 }); renderList(); input.value = '';
   } catch (e) { alert("Fehler"); } finally { document.getElementById('btn-add-submit').disabled = false; }
  }
+ 
+ // SICHERHEIT: Erst die Liste aufbauen, damit sie NIEMALS leer bleiben kann
  renderList();
+
  async function loadArticlesFromCloud() {
   try {
-   const response = await fetch(GOOGLE_SCRIPT_URL); const data = await response.json();
-   if(data && data.length > 0) {
-     data.forEach(cloudItem => {
+   const response = await fetch(GOOGLE_SCRIPT_URL); 
+   const data = await response.json();
