@@ -69,13 +69,13 @@
  }
 
  function sendWhatsApp() {
-  let text = "🛒 *GASTRO BESTELLUNG - CAMPING*\n📅 " + new Date().toLocaleString('de-DE') + "\n\n";
+  let messageText = "🛒 *GASTRO BESTELLUNG - CAMPING*\n📅 " + new Date().toLocaleString('de-DE') + "\n\n";
   let hatArtikel = false;
   
   currentArticles.forEach(item => {
     const qty = orderQuantities[item.name] || 0;
     if (qty > 0) {
-      text += "• *" + qty + "x* " + item.name + "\n";
+      messageText += "• *" + qty + "x* " + item.name + "\n";
       hatArtikel = true;
     }
   });
@@ -85,9 +85,8 @@
     return;
   }
   
-  // Direkter, sauberer Link zur WhatsApp Web / App API
-  var waUrl = "https://whatsapp.com" + encodeURIComponent(text);
-  window.open(waUrl, "_blank");
+  // Der korrekte, plattformunabhängige WhatsApp-Link
+  window.open("https://whatsapp.com" + encodeURIComponent(messageText), "_blank");
  }
 
  function resetQuantities() {
