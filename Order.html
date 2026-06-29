@@ -99,10 +99,10 @@
   } catch (e) { alert("Fehler"); } finally { document.getElementById('btn-add-submit').disabled = false; }
  }
  
- // SICHERHEIT: Erst die Liste aufbauen, damit sie NIEMALS leer bleiben kann
+ // JETZT ABSOLUT BLOCKADEFREI: Liste wird SOFORT gezeichnet!
  renderList();
 
  async function loadArticlesFromCloud() {
   try {
    const response = await fetch(GOOGLE_SCRIPT_URL); 
-   const data = await response.json();
+   const textData = await response.text(); 
