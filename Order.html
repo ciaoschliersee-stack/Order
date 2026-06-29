@@ -15,13 +15,8 @@
  h1 { font-size: 24px; color: var(--primary); margin-top: 0; margin-bottom: 5px; }
  .meta-info { font-size: 14px; color: #666; margin-bottom: 20px; border-bottom: 2px solid #eee; padding-bottom: 10px; }
  .search-box { display: flex; gap: 10px; margin-bottom: 15px; position: sticky; top: 0; background: white; padding: 5px 0; z-index: 10; }
- .add-box { display: flex; flex-direction: column; gap: 8px; margin-top: 25px; padding: 15px; background: #f1f3f4; border-radius: 8px; }
- .add-row { display: flex; gap: 8px; }
  input, select { padding: 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 16px; box-sizing: border-box; }
  input[type="text"] { flex: 1; }
- select { background: white; cursor: pointer; }
- button { padding: 12px 20px; border: none; border-radius: 6px; font-size: 16px; cursor: pointer; font-weight: bold; }
- .btn-add { background: var(--primary); color: white; }
  .item-list { margin-top: 10px; padding-right: 5px; }
  .item-row { display: flex; justify-content: space-between; align-items: center; padding: 12px; background: #fdfdfd; border: 1px solid #edf2f7; border-left: 6px solid #ccc; border-radius: 4px 8px 8px 4px; margin-bottom: 8px; }
  .cat-frische { background: var(--color-frische); border-left-color: var(--border-frische); }
@@ -32,21 +27,20 @@
  .item-name { font-weight: 500; font-size: 16px; max-width: 65%; }
  .item-warn { color: var(--accent); font-size: 12px; display: block; margin-top: 2px; font-weight: bold; }
  .qty-controls { display: flex; align-items: center; gap: 12px; }
+ button { padding: 12px 20px; border: none; border-radius: 6px; font-size: 16px; cursor: pointer; font-weight: bold; }
  .btn-qty { background: rgba(255,255,255,0.8); color: #4a5568; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 22px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); user-select: none; }
  .btn-qty:active { background: #cbd5e0; }
  .qty-val { min-width: 30px; text-align: center; font-weight: bold; font-size: 18px; }
  .summary-box { margin-top: 25px; border-top: 3px double #ccc; padding-top: 20px; position: sticky; bottom: 0; background: white; padding-bottom: 5px; }
  .btn-action { width: 100%; padding: 15px; font-size: 18px; margin-top: 10px; }
  .btn-print { background: var(--success); color: white; }
- .loading { text-align: center; padding: 20px; color: #666; font-style: italic; }
  @media print {
- body { background: white; padding: 0; }
- .container { box-shadow: none; max-width: 100%; padding: 0; }
- .search-box, .add-box, .qty-controls button, .btn-action { display: none !important; }
- .item-row { border: none !important; border-bottom: 1px solid #000 !important; padding: 8px 0; background: white !important; border-radius: 0; margin-bottom: 0; }
- .item-row:has(.qty-val[data-qty="0"]) { display: none !important; }
- .qty-val::before { content: "Bestellmenge: "; font-weight: normal; font-size: 14px; }
- .item-list { max-height: none; overflow: visible; }
+  body { background: white; padding: 0; }
+  .container { box-shadow: none; max-width: 100%; padding: 0; }
+  .search-box, button, .btn-action { display: none !important; }
+  .item-row { border: none !important; border-bottom: 1px solid #000 !important; padding: 8px 0; background: white !important; border-radius: 0; margin-bottom: 0; }
+  .item-row:has(.qty-val[data-qty="0"]) { display: none !important; }
+  .qty-val::before { content: "Bestellmenge: "; font-weight: normal; font-size: 14px; }
  }
  </style>
 </head>
@@ -55,46 +49,26 @@
  <h1> Gastro Einkauf &amp; Bestellung</h1>
  <div class="meta-info">
   <span>Standort: Camping</span><br>
-  <span id="live-clock">Lade Datum/Uhrzeit...</span>
+  <span id="live-clock">Datum/Uhrzeit...</span>
  </div>
  <div class="search-box">
   <input type="text" id="search-input" placeholder="Artikel filtern..." oninput="filterArticles()">
  </div>
- <div class="item-list" id="article-container">
-  <div class="loading" id="loading-status">Lade aktuelle Artikelliste aus der Cloud...</div>
- </div>
- <div class="add-box">
-  <strong style="font-size: 14px; color: var(--primary);">Neuen Artikel für ALLE Mitarbeiter lernen:</strong>
-  <div class="add-row">
-   <input type="text" id="new-item-name" placeholder="Artikelname...">
-   <select id="new-item-category">
-    <option value="frische"> Frische / TK / Kühlung</option>
-    <option value="trocken"> Trockenlager / Grundnahrung</option>
-    <option value="saucen"> Saucen / Gewürze / Öle</option>
-    <option value="nonfood"> Verpackung / Gastro-Bedarf</option>
-    <option value="reinigung"> Reinigung / Hygiene</option>
-   </select>
-   <button class="btn-add" id="btn-add-submit" onclick="addNewArticle()">+</button>
-  </div>
- </div>
+ <div class="item-list" id="article-container"></div>
  <div class="summary-box">
   <button class="btn-action btn-print" onclick="window.print()">Bestellliste fertigstellen (drucken / PDF)</button>
  </div>
 </div>
 <script>
- const GOOGLE_SCRIPT_URL = "https://google.com";
- 
  const categoryOrder = ["frische", "trocken", "saucen", "nonfood", "reinigung"];
- let currentArticles = [];
  let orderQuantities = {};
- let listRendered = false;
 
  function updateClock() {
   document.getElementById('live-clock').innerText = "Datum/Uhrzeit: " + new Date().toLocaleString('de-DE');
  }
  setInterval(updateClock, 1000); updateClock();
 
- const defaultArticles = [
+ const currentArticles = [
    { name: "Polpa", cat: "frische" }, { name: "Mozzarella Pizza", cat: "frische" }, { name: "Mozzarella caprese", cat: "frische" },
    { name: "Salami (vorbestellen 3 Tage früher)", cat: "frische" }, { name: "Garnelen", cat: "frische" }, { name: "Grillgemüse", cat: "frische" },
    { name: "Avocado", cat: "frische" }, { name: "Hähnchenstreifen", cat: "frische" }, { name: "Pommes", cat: "frische" },
@@ -114,40 +88,8 @@
    { name: "Lappen", cat: "reinigung" }, { name: "Schwamm", cat: "reinigung" }
  ];
 
- function loadFallback() {
-  if (!listRendered) {
-    currentArticles = defaultArticles;
-    sortAndRender();
-  }
- }
-
- async function loadArticlesFromCloud() {
-  setTimeout(loadFallback, 3000);
-  try {
-   const response = await fetch(GOOGLE_SCRIPT_URL);
-   const data = await response.json();
-   if(data && data.length > 0) {
-     // Richtige Strukturierung der Google-Daten
-     currentArticles = data.map(item => ({
-       name: item.name,
-       cat: item.cat
-     }));
-     sortAndRender();
-   } else {
-     loadFallback();
-   }
-  } catch (error) {
-   loadFallback();
-  }
- }
-
- function sortAndRender() {
-  currentArticles.sort((a, b) => categoryOrder.indexOf(a.cat) - categoryOrder.indexOf(b.cat));
-  renderList();
- }
-
  function renderList() {
-  listRendered = true;
+  currentArticles.sort((a, b) => categoryOrder.indexOf(a.cat) - categoryOrder.indexOf(b.cat));
   const container = document.getElementById('article-container');
   container.innerHTML = '';
   currentArticles.forEach((item, index) => {
@@ -173,3 +115,20 @@
 
  function changeQty(itemName, change, index) {
   if (!orderQuantities[itemName]) orderQuantities[itemName] = 0;
+  orderQuantities[itemName] = Math.max(0, orderQuantities[itemName] + change);
+  const qtySpan = document.getElementById(`qty-${index}`);
+  qtySpan.innerText = orderQuantities[itemName];
+  qtySpan.setAttribute('data-qty', orderQuantities[itemName]);
+ }
+
+ function filterArticles() {
+  const query = document.getElementById('search-input').value.toLowerCase();
+  document.querySelectorAll('.item-row').forEach(row => {
+   row.style.display = row.getAttribute('data-name').includes(query) ? 'flex' : 'none';
+  });
+ }
+
+ renderList();
+</script>
+</body>
+</html>
