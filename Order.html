@@ -40,7 +40,6 @@
  .btn-action { flex: 1; padding: 15px; font-size: 16px; }
  .btn-print { background: var(--success); color: white; }
  .btn-reset { background: var(--accent); color: white; }
- .loading { text-align: center; padding: 20px; color: #666; font-style: italic; }
  @media print {
  body { background: white; padding: 0; }
  .container { box-shadow: none; max-width: 100%; padding: 0; }
@@ -56,14 +55,12 @@
  <h1> Gastro Einkauf &amp; Bestellung</h1>
  <div class="meta-info">
   <span>Standort: Camping</span><br>
-  <span id="live-clock">Lade Datum/Uhrzeit...</span>
+  <span id="live-clock">Datum/Uhrzeit...</span>
  </div>
  <div class="search-box">
   <input type="text" id="search-input" placeholder="Artikel filtern..." oninput="filterArticles()">
  </div>
- <div class="item-list" id="article-container">
-  <div class="loading" id="loading-status">Lade aktuelle Artikelliste aus der Cloud...</div>
- </div>
+ <div class="item-list" id="article-container"></div>
  <div class="add-box">
   <strong style="font-size: 14px; color: var(--primary);">Neuen Artikel für ALLE Mitarbeiter lernen:</strong>
   <div class="add-row">
@@ -89,16 +86,14 @@
  const GOOGLE_SCRIPT_URL = "https://google.com";
  
  const categoryOrder = ["frische", "trocken", "saucen", "nonfood", "reinigung"];
- let currentArticles = [];
  let orderQuantities = {};
- let listRendered = false;
 
  function updateClock() {
   document.getElementById('live-clock').innerText = "Datum/Uhrzeit: " + new Date().toLocaleString('de-DE');
  }
  setInterval(updateClock, 1000); updateClock();
 
- const defaultArticles = [
+ let currentArticles = [
    { name: "Polpa", cat: "frische" }, { name: "Mozzarella Pizza", cat: "frische" }, { name: "Mozzarella caprese", cat: "frische" },
    { name: "Salami (vorbestellen 3 Tage früher)", cat: "frische" }, { name: "Garnelen", cat: "frische" }, { name: "Grillgemüse", cat: "frische" },
    { name: "Avocado", cat: "frische" }, { name: "Hähnchenstreifen", cat: "frische" }, { name: "Pommes", cat: "frische" },
@@ -118,36 +113,8 @@
    { name: "Lappen", cat: "reinigung" }, { name: "Schwamm", cat: "reinigung" }
  ];
 
- function loadFallback() {
-  if (!listRendered) {
-    currentArticles = defaultArticles;
-    sortAndRender();
-  }
- }
-
- async function loadArticlesFromCloud() {
-  setTimeout(loadFallback, 2500);
-  try {
-   const response = await fetch(GOOGLE_SCRIPT_URL);
-   const data = await response.json();
-   if(data && data.length > 0) {
-     currentArticles = data;
-     sortAndRender();
-   } else {
-     loadFallback();
-   }
-  } catch (error) {
-   loadFallback();
-  }
- }
-
- function sortAndRender() {
-  currentArticles.sort((a, b) => categoryOrder.indexOf(a.cat) - categoryOrder.indexOf(b.cat));
-  renderList();
- }
-
  function renderList() {
-  listRendered = true;
+  currentArticles.sort((a, b) => categoryOrder.indexOf(a.cat) - categoryOrder.indexOf(b.cat));
   const container = document.getElementById('article-container');
   container.innerHTML = '';
   currentArticles.forEach((item, index) => {
@@ -172,3 +139,25 @@
  }
 
  function changeQty(itemName, change, index) {
+  if (!orderQuantities[itemName]) orderQuantities[itemName] = 0;
+  orderQuantities[itemName] = Math.max(0, orderQuantities[itemName] + change);
+  const qtySpan = document.getElementById(`qty-${index}`);
+  qtySpan.innerText = orderQuantities[itemName];
+  qtySpan.setAttribute('data-qty', orderQuantities[itemName]);
+ }
+
+ function resetQuantities() {
+  if (confirm("Möchten Sie wirklich alle eingetragenen Bestellmengen auf 0 zurücksetzen?")) {
+    orderQuantities = {};
+    renderList();
+  }
+ }
+
+ function filterArticles() {
+  const query = document.getElementById('search-input').value.toLowerCase();
+  document.querySelectorAll('.item-row').forEach(row => {
+   row.style.display = row.getAttribute('data-name').includes(query) ? 'flex' : 'none';
+  });
+ }
+
+ async function addNewArticle() {
