@@ -97,7 +97,25 @@
    currentArticles.push({ name: name, cat: cat }); renderList(); input.value = '';
   } catch (e) { alert("Fehler"); } finally { document.getElementById('btn-add-submit').disabled = false; }
  }
+ // 1. ZEICHNE DIE LISTE SOFORT BEIM START AUF DEN BILDSCHIRM
  renderList();
+ // 2. LADEN DER NEUEN ARTIKEL AUS GOOGLE ABSOLUT SICHER IM HINTERGRUND
+ async function loadArticlesFromCloud() {
+  try {
+   const response = await fetch(GOOGLE_SCRIPT_URL);
+   const data = await response.json();
+   if(data && data.length > 0) {
+     // Verbindet die 52 Standardartikel mit den neuen Artikeln aus Google
+     data.forEach(cloudItem => {
+       if (cloudItem.name && !currentArticles.some(localItem => localItem.name.toLowerCase() === cloudItem.name.toLowerCase())) {
+         currentArticles.push({ name: cloudItem.name, cat: cloudItem.cat });
+       }
+     });
+     renderList();
+    }
+  } catch (error) { /* Google blockiert nicht mehr */ }
+ }
+ loadArticlesFromCloud();
 </script>
 </body>
 </html>
