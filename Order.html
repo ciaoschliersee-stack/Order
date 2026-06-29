@@ -99,10 +99,11 @@
   } catch (e) { alert("Fehler"); } finally { document.getElementById('btn-add-submit').disabled = false; }
  }
  
- // JETZT ABSOLUT BLOCKADEFREI: Liste wird SOFORT gezeichnet!
+ // LISTE SOFORT ANZEIGEN (BLOCKADEFREI)
  renderList();
 
  async function loadArticlesFromCloud() {
   try {
    const response = await fetch(GOOGLE_SCRIPT_URL); 
-   const textData = await response.text(); 
+   const data = await response.json();
+   if(data && Array.isArray(data) && data.length > 0) {
