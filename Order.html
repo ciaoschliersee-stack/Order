@@ -85,8 +85,9 @@
     return;
   }
   
-  // Exakter, fehlerfreier Web-Link zu WhatsApp mit echtem Variablen-Inhalt
-  window.open("https://wa.me" + encodeURIComponent(text), "_blank");
+  // Direkter, sauberer Link zur WhatsApp Web / App API
+  var waUrl = "https://whatsapp.com" + encodeURIComponent(text);
+  window.open(waUrl, "_blank");
  }
 
  function resetQuantities() {
