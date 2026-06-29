@@ -3,13 +3,12 @@
 <head>
  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Gastro Bestell-App</title>
  <style>
- :root { --primary: #2c3e50; --accent: #e74c3c; --success: #2ecc71; --bg: #f8f9fa; --color-frische: #e6f4ea; --color-trocken: #fef7e0; --color-saucen: #fce8e6; --color-nonfood: #e8f0fe; --color-reinigung: #f3e8fd; --border-frische: #34a853; --border-trocken: #fbbc05; --border-saucen: #ea4335; --border-nonfood: #4285f4; --border-reinigung: #a142f4; }
+ :root { --primary: #2c3e50; --accent: #e74c3c; --success: #2ecc71; --whatsapp: #25D366; --bg: #f8f9fa; --color-frische: #e6f4ea; --color-trocken: #fef7e0; --color-saucen: #fce8e6; --color-nonfood: #e8f0fe; --color-reinigung: #f3e8fd; --border-frische: #34a853; --border-trocken: #fbbc05; --border-saucen: #ea4335; --border-nonfood: #4285f4; --border-reinigung: #a142f4; }
  body { font-family: sans-serif; background: var(--bg); margin: 0; padding: 20px; color: #333; }
  .container { max-width: 650px; margin: 0 auto; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
  h1 { font-size: 24px; color: var(--primary); margin: 0 0 5px 0; }
  .meta-info { font-size: 14px; color: #666; margin-bottom: 20px; border-bottom: 2px solid #eee; padding-bottom: 10px; }
- input, select { padding: 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 16px; box-sizing: border-box; }
- input[type="text"] { width: 100%; margin-bottom: 15px; }
+ input { padding: 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 16px; box-sizing: border-box; width: 100%; margin-bottom: 15px; }
  .item-list { margin-top: 10px; padding-right: 5px; }
  .item-row { display: flex; justify-content: space-between; align-items: center; padding: 12px; border: 1px solid #edf2f7; border-left: 6px solid #ccc; border-radius: 4px 8px 8px 4px; margin-bottom: 8px; }
  .cat-frische { background: var(--color-frische); border-left-color: var(--border-frische); }
@@ -21,9 +20,10 @@
  .qty-controls { display: flex; align-items: center; gap: 12px; }
  .btn-qty { background: white; border: 1px solid #ccc; width: 40px; height: 40px; border-radius: 50%; font-size: 20px; cursor: pointer; }
  .qty-val { min-width: 25px; text-align: center; font-weight: bold; font-size: 18px; }
- .action-buttons { display: flex; gap: 10px; margin-top: 20px; }
- .btn-action { flex: 1; padding: 15px; font-size: 16px; font-weight: bold; color: white; border: none; border-radius: 6px; cursor: pointer; }
+ .action-buttons { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; }
+ .btn-action { width: 100%; padding: 15px; font-size: 16px; font-weight: bold; color: white; border: none; border-radius: 6px; cursor: pointer; text-align: center; box-sizing: border-box; }
  .btn-print { background: var(--success); }
+ .btn-whatsapp { background: var(--whatsapp); }
  .btn-reset { background: var(--accent); }
  @media print { .search-box, .qty-controls button, .action-buttons { display: none !important; } .item-row { border: none !important; border-bottom: 1px solid #000 !important; } .item-row:has(.qty-val[data-qty="0"]) { display: none !important; } }
  </style>
@@ -35,8 +35,9 @@
  <input type="text" id="search-input" placeholder="Artikel filtern..." oninput="filterArticles()">
  <div id="article-container"></div>
  <div class="action-buttons">
+  <button class="btn-action btn-whatsapp" onclick="sendWhatsApp()">Per WhatsApp senden</button>
+  <button class="btn-action btn-print" onclick="window.print()">Als PDF speichern / Drucken</button>
   <button class="btn-action btn-reset" onclick="resetQuantities()">Mengen löschen (Reset)</button>
-  <button class="btn-action btn-print" onclick="window.print()">Drucken / PDF</button>
  </div>
 </div>
 <script>
@@ -65,6 +66,26 @@
   const qtySpan = document.getElementById(`qty-${index}`);
   qtySpan.innerText = orderQuantities[itemName];
   qtySpan.setAttribute('data-qty', orderQuantities[itemName]);
+ }
+
+ function sendWhatsApp() {
+  let text = `🛒 *GASTRO BESTELLUNG - CAMPING*\n📅 ${new Date().toLocaleString('de-DE')}\n\n`;
+  let hatArtikel = false;
+  
+  currentArticles.forEach(item => {
+    const qty = orderQuantities[item.name] || 0;
+    if (qty > 0) {
+      text += `• *${qty}x* ${item.name}\n`;
+      hatArtikel = true;
+    }
+  });
+  
+  if (!hatArtikel) {
+    alert("Bitte tragen Sie zuerst bei mindestens einem Artikel eine Menge ein!");
+    return;
+  }
+  
+  window.open(`https://whatsapp.com{encodeURIComponent(text)}`, '_blank');
  }
 
  function resetQuantities() {
