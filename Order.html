@@ -58,64 +58,49 @@
  const categoryOrder = ["frische", "trocken", "saucen", "nonfood", "reinigung"];
  let orderQuantities = {};
  let currentArticles = [
-   { name: "Polpa", cat: "frische" }, { name: "Mozzarella Pizza", cat: "frische" }, { name: "Mozzarella caprese", cat: "frische" }, { name: "Salami (vorbestellen 3 Tage früher)", cat: "frische" }, { name: "Garnelen", cat: "frische" }, { name: "Grillgemüse", cat: "frische" }, { name: "Avocado", cat: "frische" }, { name: "Hähnchenstreifen", cat: "frische" }, { name: "Pommes", cat: "frische" }, { name: "Bacon", cat: "frische" }, { name: "Eier", cat: "frische" }, { name: "Gorgonzola", cat: "frische" }, { name: "Grana", cat: "frische" }, { name: "Cheddar", cat: "frische" }, { name: "Sahne", cat: "frische" }, { name: "Knoblauch tk", cat: "frische" }, { name: "Farina", cat: "trocken" }, { name: "Semola", cat: "trocken" }, { name: "Hamburger", cat: "trocken" }, { name: "Veggy burger", cat: "trocken" }, { name: "Croutons", cat: "trocken" }, { name: "Mais", cat: "trocken" }, { name: "Röstzwiebeln", cat: "trocken" }, { name: "Öl", cat: "saucen" }, { name: "Olivenöl", cat: "saucen" }, { name: "Salz", cat: "saucen" }, { name: "Pommessalz", cat: "saucen" }, { name: "Pfeffer", cat: "saucen" }, { name: "Burger sauce", cat: "saucen" }, { name: "Trüffelcreme", cat: "saucen" }, { name: "Pesto", cat: "saucen" }, { name: "Mayo", cat: "saucen" }, { name: "Ketchup", cat: "saucen" }, { name: "Balsamico Creme", cat: "saucen" }, { name: "Balsamico dressing", cat: "saucen" }, { name: "French dressing", cat: "saucen" }, { name: "Verpackung Pasta", cat: "nonfood" }, { name: "Verpackung Pizza", cat: "nonfood" }, { name: "Verpackung Burger (vorbestellen)", cat: "nonfood" }, { name: "Pommes tüten gross", cat: "nonfood" }, { name: "Pommes tüten klein", cat: "nonfood" }, { name: "Frischhaltefolie", cat: "nonfood" }, { name: "Servietten", cat: "nonfood" }, { name: "Küchentücher", cat: "nonfood" }, { name: "Fettlöser", cat: "reinigung" }, { name: "Grillreiniger", cat: "reinigung" }, { name: "Spülmittel", cat: "reinigung" }, { name: "Handschuhe M", cat: "reinigung" }, { name: "Handschuhe L", cat: "reinigung" }, { name: "Handschuhe XL", cat: "reinigung" }, { name: "Lappen", cat: "reinigung" }, { name: "Schwamm", cat: "reinigung" }
+   { name: "Polpa", cat: "frische", qty: 0 }, { name: "Mozzarella Pizza", cat: "frische", qty: 0 }, { name: "Mozzarella caprese", cat: "frische", qty: 0 }, { name: "Salami (vorbestellen 3 Tage früher)", cat: "frische", qty: 0 }, { name: "Garnelen", cat: "frische", qty: 0 }, { name: "Grillgemüse", cat: "frische", qty: 0 }, { name: "Avocado", cat: "frische", qty: 0 }, { name: "Hähnchenstreifen", cat: "frische", qty: 0 }, { name: "Pommes", cat: "frische", qty: 0 }, { name: "Bacon", cat: "frische", qty: 0 }, { name: "Eier", cat: "frische", qty: 0 }, { name: "Gorgonzola", cat: "frische", qty: 0 }, { name: "Grana", cat: "frische", qty: 0 }, { name: "Cheddar", cat: "frische", qty: 0 }, { name: "Sahne", cat: "frische", qty: 0 }, { name: "Knoblauch tk", cat: "frische", qty: 0 }, { name: "Farina", cat: "trocken", qty: 0 }, { name: "Semola", cat: "trocken", qty: 0 }, { name: "Hamburger", cat: "trocken", qty: 0 }, { name: "Veggy burger", cat: "trocken", qty: 0 }, { name: "Croutons", cat: "trocken", qty: 0 }, { name: "Mais", cat: "trocken", qty: 0 }, { name: "Röstzwiebeln", cat: "trocken", qty: 0 }, { name: "Öl", cat: "saucen", qty: 0 }, { name: "Olivenöl", cat: "saucen", qty: 0 }, { name: "Salz", cat: "saucen", qty: 0 }, { name: "Pommessalz", cat: "saucen", qty: 0 }, { name: "Pfeffer", cat: "saucen", qty: 0 }, { name: "Burger sauce", cat: "saucen", qty: 0 }, { name: "Trüffelcreme", cat: "saucen", qty: 0 }, { name: "Pesto", cat: "saucen", qty: 0 }, { name: "Mayo", cat: "saucen", qty: 0 }, { name: "Ketchup", cat: "saucen", qty: 0 }, { name: "Balsamico Creme", cat: "saucen" }, { name: "Balsamico dressing", cat: "saucen", qty: 0 }, { name: "French dressing", cat: "saucen", qty: 0 }, { name: "Verpackung Pasta", cat: "nonfood", qty: 0 }, { name: "Verpackung Pizza", cat: "nonfood", qty: 0 }, { name: "Verpackung Burger (vorbestellen)", cat: "nonfood", qty: 0 }, { name: "Pommes tüten gross", cat: "nonfood", qty: 0 }, { name: "Pommes tüten klein", cat: "nonfood" }, { name: "Frischhaltefolie", cat: "nonfood", qty: 0 }, { name: "Servietten", cat: "nonfood", qty: 0 }, { name: "Küchentücher", cat: "nonfood", qty: 0 }, { name: "Fettlöser", cat: "reinigung", qty: 0 }, { name: "Grillreiniger", cat: "reinigung", qty: 0 }, { name: "Spülmittel", cat: "reinigung", qty: 0 }, { name: "Handschuhe M", cat: "reinigung", qty: 0 }, { name: "Handschuhe L", cat: "reinigung", qty: 0 }, { name: "Handschuhe XL", cat: "reinigung", qty: 0 }, { name: "Lappen", cat: "reinigung", qty: 0 }, { name: "Schwamm", cat: "reinigung", qty: 0 }
  ];
  function updateClock() { document.getElementById('live-clock').innerText = "Datum/Uhrzeit: " + new Date().toLocaleString('de-DE'); }
  setInterval(updateClock, 1000); updateClock();
  function renderList() {
   currentArticles.sort((a, b) => categoryOrder.indexOf(a.cat) - categoryOrder.indexOf(b.cat));
-  const container = document.getElementById('article-container');
-  container.innerHTML = '';
+  const container = document.getElementById('article-container'); container.innerHTML = '';
   currentArticles.forEach((item, index) => {
-   const qty = orderQuantities[item.name] || 0;
-   const row = document.createElement('div');
-   row.className = `item-row cat-${item.cat}`;
-   row.setAttribute('data-name', item.name.toLowerCase());
-   row.innerHTML = `<div class="item-name">${item.name}</div><div class="qty-controls"><button class="btn-qty" onclick="changeQty('${item.name}',-1,${index})">-</button><span class="qty-val" id="qty-${index}" data-qty="${qty}">${qty}</span><button class="btn-qty" onclick="changeQty('${item.name}',1,${index})">+</button></div>`;
+   var row = document.createElement('div'); row.className = `item-row cat-${item.cat}`; row.setAttribute('data-name', item.name.toLowerCase());
+   row.innerHTML = `<div class="item-name">${item.name}</div><div class="qty-controls"><button class="btn-qty" onclick="changeQty('${item.name}',-1,${index})">-</button><span class="qty-val" id="qty-${index}" data-qty="${item.qty}">${item.qty}</span><button class="btn-qty" onclick="changeQty('${item.name}',1,${index})">+</button></div>`;
    container.appendChild(row);
   });
  }
- function changeQty(itemName, change, index) {
-  orderQuantities[itemName] = Math.max(0, (orderQuantities[itemName] || 0) + change);
-  const qtySpan = document.getElementById(`qty-${index}`);
-  qtySpan.innerText = orderQuantities[itemName];
-  qtySpan.setAttribute('data-qty', orderQuantities[itemName]);
+ async function changeQty(itemName, change, index) {
+  var targetItem = currentArticles.find(a => a.name === itemName); if (!targetItem) return;
+  targetItem.qty = Math.max(0, targetItem.qty + change);
+  document.getElementById(`qty-${index}`).innerText = targetItem.qty;
+  document.getElementById(`qty-${index}`).setAttribute('data-qty', targetItem.qty);
+  try { await fetch(GOOGLE_SCRIPT_URL, { method: "POST", mode: "no-cors", body: JSON.stringify({ action: "updateQty", name: targetItem.name, qty: targetItem.qty }) }); } catch(e){}
  }
- function resetQuantities() { if (confirm("Wirklich alles auf 0 setzen?")) { orderQuantities = {}; renderList(); } }
+ async function resetQuantities() {
+  if (confirm("Wirklich alle Live-Mengen auf 0 setzen?")) {
+    currentArticles.forEach(a => a.qty = 0); renderList();
+    try { await fetch(GOOGLE_SCRIPT_URL, { method: "POST", mode: "no-cors", body: JSON.stringify({ action: "resetAll" }) }); } catch(e){}
+  }
+ }
  function filterArticles() {
   const query = document.getElementById('search-input').value.toLowerCase();
   document.querySelectorAll('.item-row').forEach(row => { row.style.display = row.getAttribute('data-name').includes(query) ? 'flex' : 'none'; });
  }
  async function addNewArticle() {
-  const input = document.getElementById('new-item-name');
-  const name = input.value.trim();
+  const input = document.getElementById('new-item-name'); const name = input.value.trim();
   const cat = document.getElementById('new-item-category').value;
   if (!name || currentArticles.some(item => item.name.toLowerCase() === name.toLowerCase())) return;
   document.getElementById('btn-add-submit').disabled = true;
   try {
-   await fetch(GOOGLE_SCRIPT_URL, { method: "POST", mode: "no-cors", body: JSON.stringify({ name: name, cat: cat }) });
-   currentArticles.push({ name: name, cat: cat }); renderList(); input.value = '';
+   await fetch(GOOGLE_SCRIPT_URL, { method: "POST", mode: "no-cors", body: JSON.stringify({ action: "add", name: name, cat: cat }) });
+   currentArticles.push({ name: name, cat: cat, qty: 0 }); renderList(); input.value = '';
   } catch (e) { alert("Fehler"); } finally { document.getElementById('btn-add-submit').disabled = false; }
  }
- // 1. ZEICHNE DIE LISTE SOFORT BEIM START AUF DEN BILDSCHIRM
  renderList();
- // 2. LADEN DER NEUEN ARTIKEL AUS GOOGLE ABSOLUT SICHER IM HINTERGRUND
  async function loadArticlesFromCloud() {
   try {
-   const response = await fetch(GOOGLE_SCRIPT_URL);
-   const data = await response.json();
+   const response = await fetch(GOOGLE_SCRIPT_URL); const data = await response.json();
    if(data && data.length > 0) {
-     // Verbindet die 52 Standardartikel mit den neuen Artikeln aus Google
      data.forEach(cloudItem => {
-       if (cloudItem.name && !currentArticles.some(localItem => localItem.name.toLowerCase() === cloudItem.name.toLowerCase())) {
-         currentArticles.push({ name: cloudItem.name, cat: cloudItem.cat });
-       }
-     });
-     renderList();
-    }
-  } catch (error) { /* Google blockiert nicht mehr */ }
- }
- loadArticlesFromCloud();
-</script>
-</body>
-</html>
