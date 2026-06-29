@@ -36,14 +36,12 @@
  .btn-qty:active { background: #cbd5e0; }
  .qty-val { min-width: 30px; text-align: center; font-weight: bold; font-size: 18px; }
  .summary-box { margin-top: 25px; border-top: 3px double #ccc; padding-top: 20px; position: sticky; bottom: 0; background: white; padding-bottom: 5px; }
- .action-buttons { display: flex; gap: 10px; margin-top: 10px; }
- .btn-action { flex: 1; padding: 15px; font-size: 16px; }
+ .btn-action { width: 100%; padding: 15px; font-size: 18px; margin-top: 10px; }
  .btn-print { background: var(--success); color: white; }
- .btn-reset { background: var(--accent); color: white; }
  @media print {
  body { background: white; padding: 0; }
  .container { box-shadow: none; max-width: 100%; padding: 0; }
- .search-box, .add-box, .qty-controls button, .summary-box { display: none !important; }
+ .search-box, .add-box, .qty-controls button, .btn-action { display: none !important; }
  .item-row { border: none !important; border-bottom: 1px solid #000 !important; padding: 8px 0; background: white !important; border-radius: 0; margin-bottom: 0; }
  .item-row:has(.qty-val[data-qty="0"]) { display: none !important; }
  .qty-val::before { content: "Bestellmenge: "; font-weight: normal; font-size: 14px; }
@@ -55,7 +53,7 @@
  <h1> Gastro Einkauf &amp; Bestellung</h1>
  <div class="meta-info">
   <span>Standort: Camping</span><br>
-  <span id="live-clock">Datum/Uhrzeit...</span>
+  <span id="live-clock">Lade Datum/Uhrzeit...</span>
  </div>
  <div class="search-box">
   <input type="text" id="search-input" placeholder="Artikel filtern..." oninput="filterArticles()">
@@ -76,14 +74,12 @@
   </div>
  </div>
  <div class="summary-box">
-  <div class="action-buttons">
-   <button class="btn-action btn-reset" onclick="resetQuantities()">Mengen löschen (Reset)</button>
-   <button class="btn-action btn-print" onclick="window.print()">Drucken / PDF</button>
-  </div>
+  <button class="btn-action btn-print" onclick="window.print()">Bestellliste fertigstellen (drucken / PDF)</button>
  </div>
 </div>
 <script>
  const GOOGLE_SCRIPT_URL = "https://google.com";
+ 
  const categoryOrder = ["frische", "trocken", "saucen", "nonfood", "reinigung"];
  let orderQuantities = {};
 
@@ -145,13 +141,6 @@
   qtySpan.setAttribute('data-qty', orderQuantities[itemName]);
  }
 
- function resetQuantities() {
-  if (confirm("Möchten Sie wirklich alle eingetragenen Bestellmengen auf 0 zurücksetzen?")) {
-    orderQuantities = {};
-    renderList();
-  }
- }
-
  function filterArticles() {
   const query = document.getElementById('search-input').value.toLowerCase();
   document.querySelectorAll('.item-row').forEach(row => {
@@ -160,3 +149,11 @@
  }
 
  async function addNewArticle() {
+  const input = document.getElementById('new-item-name');
+  const catSelect = document.getElementById('new-item-category');
+  const name = input.value.trim();
+  const cat = catSelect.value;
+  if (name === '') return;
+  if (currentArticles.some(item => item.name.toLowerCase() === name.toLowerCase())) {
+   alert('Dieser Artikel existiert bereits!'); return;
+  }
