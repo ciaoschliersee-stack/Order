@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <title>Gastro Bestell-App - Camping</title>
+ <style>
+ :root {
+ --primary: #2c3e50; --accent: #e74c3c; --success: #2ecc71; --bg: #f8f9fa;
+ --color-frische: #e6f4ea; --color-trocken: #fef7e0; --color-saucen: #fce8e6; --color-nonfood: #e8f0fe; --color-reinigung: #f3e8fd;
+ --border-frische: #34a853; --border-trocken: #fbbc05; --border-saucen: #ea4335; --border-nonfood: #4285f4; --border-reinigung: #a142f4;
+ }
+ body { font-family: 'Segoe UI', Arial, sans-serif; background: var(--bg); margin: 0; padding: 20px; color: #333; }
+ .container { max-width: 650px; margin: 0 auto; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+ h1 { font-size: 24px; color: var(--primary); margin-top: 0; margin-bottom: 5px; }
+ .meta-info { font-size: 14px; color: #666; margin-bottom: 20px; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+ .search-box { display: flex; gap: 10px; margin-bottom: 15px; position: sticky; top: 0; background: white; padding: 5px 0; z-index: 10; }
+ .add-box { display: flex; flex-direction: column; gap: 8px; margin-top: 25px; padding: 15px; background: #f1f3f4; border-radius: 8px; }
+ .add-row { display: flex; gap: 8px; }
+ input, select { padding: 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 16px; box-sizing: border-box; }
+ input[type="text"] { flex: 1; }
+ select { background: white; cursor: pointer; }
+ button { padding: 12px 20px; border: none; border-radius: 6px; font-size: 16px; cursor: pointer; font-weight: bold; }
+ .btn-add { background: var(--primary); color: white; }
+ .item-list { margin-top: 10px; padding-right: 5px; }
+ .item-row { display: flex; justify-content: space-between; align-items: center; padding: 12px; background: #fdfdfd; border: 1px solid #edf2f7; border-left: 6px solid #ccc; border-radius: 4px 8px 8px 4px; margin-bottom: 8px; }
+ .cat-frische { background: var(--color-frische); border-left-color: var(--border-frische); }
+ .cat-trocken { background: var(--color-trocken); border-left-color: var(--border-trocken); }
+ .cat-saucen { background: var(--color-saucen); border-left-color: var(--border-saucen); }
+ .cat-nonfood { background: var(--color-nonfood); border-left-color: var(--border-nonfood); }
+ .cat-reinigung { background: var(--color-reinigung); border-left-color: var(--border-reinigung); }
+ .item-name { font-weight: 500; font-size: 16px; max-width: 65%; }
+ .item-warn { color: var(--accent); font-size: 12px; display: block; margin-top: 2px; font-weight: bold; }
+ .qty-controls { display: flex; align-items: center; gap: 12px; }
+ .btn-qty { background: rgba(255,255,255,0.8); color: #4a5568; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 22px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); user-select: none; }
+ .btn-qty:active { background: #cbd5e0; }
+ .qty-val { min-width: 30px; text-align: center; font-weight: bold; font-size: 18px; }
+ .summary-box { margin-top: 25px; border-top: 3px double #ccc; padding-top: 20px; position: sticky; bottom: 0; background: white; padding-bottom: 5px; }
+ .btn-action { width: 100%; padding: 15px; font-size: 18px; margin-top: 10px; }
+ .btn-print { background: var(--success); color: white; }
+ .loading { text-align: center; padding: 20px; color: #666; font-style: italic; }
+ @media print {
+ body { background: white; padding: 0; }
+ .container { box-shadow: none; max-width: 100%; padding: 0; }
+ .search-box, .add-box, .qty-controls button, .btn-action { display: none !important; }
+ .item-row { border: none !important; border-bottom: 1px solid #000 !important; padding: 8px 0; background: white !important; border-radius: 0; margin-bottom: 0; }
+ .item-row:has(.qty-val[data-qty="0"]) { display: none !important; }
+ .qty-val::before { content: "Bestellmenge: "; font-weight: normal; font-size: 14px; }
+ .item-list { max-height: none; overflow: visible; }
+ }
+ </style>
+</head>
+<body>
+<div class="container">
+ <h1> Gastro Einkauf &amp; Bestellung</h1>
+ <div class="meta-info">
+ <span>Standort: Camping</span><br>
+ <span id="live-clock">Lade Datum/Uhrzeit...</span>
+ </div>
+ <div class="search-box">
+  <input type="text" id="search-input" placeholder="Artikel filtern..." oninput="filterArticles()">
+ </div>
+ <div class="item-list" id="article-container">
+  <div class="loading" id="loading-status">Lade aktuelle Artikelliste aus der Cloud...</div>
+ </div>
+ <div class="add-box">
+  <strong style="font-size: 14px; color: var(--primary);">Neuen Artikel für ALLE Mitarbeiter lernen:</strong>
+  <div class="add-row">
+   <input type="text" id="new-item-name" placeholder="Artikelname...">
+   <select id="new-item-category">
+    <option value="frische"> Frische / TK / Kühlung</option>
+    <option value="trocken"> Trockenlager / Grundnahrung</option>
+    <option value="saucen"> Saucen / Gewürze / Öle</option>
+    <option value="nonfood"> Verpackung / Gastro-Bedarf</option>
+    <option value="reinigung"> Reinigung / Hygiene</option>
+   </select>
+   <button class="btn-add" id="btn-add-submit" onclick="addNewArticle()">+</button>
+  </div>
+ </div>
+ <div class="summary-box">
+  <button class="btn-action btn-print" onclick="window.print()">Bestellliste fertigstellen (drucken / PDF)</button>
+ </div>
+</div>
+<script>
+ // HIER IST IHRE KOPIERTE GOOGLE WEB-APP-URL FEST EINGEBAUT:
+ const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx8c78vYylq-DKrLn5IuZU07YitPUPRm2Cw88wHQ3lC82o7PNesJP4ssfbxJegI36iZ/exec";
+ 
+ const categoryOrder = ["frische", "trocken", "saucen", "nonfood", "reinigung"];
+ let currentArticles = [];
+ let orderQuantities = {};
+ function updateClock() {
+  document.getElementById('live-clock').innerText = "Datum/Uhrzeit: " + new Date().toLocaleString('de-DE');
+ }
+ setInterval(updateClock, 1000); updateClock();
+ async function loadArticlesFromCloud() {
+  try {
+   const response = await fetch(GOOGLE_SCRIPT_URL);
+   currentArticles = await response.json();
+   if(!currentArticles || currentArticles.length === 0) {
+     currentArticles = [
+       { name: "Polpa", cat: "frische" }, { name: "Mozzarella Pizza", cat: "frische" }, { name: "Mozzarella caprese", cat: "frische" },
+       { name: "Salami (vorbestellen 3 Tage früher)", cat: "frische" }, { name: "Garnelen", cat: "frische" }, { name: "Grillgemüse", cat: "frische" },
+       { name: "Avocado", cat: "frische" }, { name: "Hähnchenstreifen", cat: "frische" }, { name: "Pommes", cat: "frische" },
+       { name: "Bacon", cat: "frische" }, { name: "Eier", cat: "frische" }, { name: "Gorgonzola", cat: "frische" },
+       { name: "Grana", cat: "frische" }, { name: "Cheddar", cat: "frische" }, { name: "Sahne", cat: "frische" }, { name: "Knoblauch tk", cat: "frische" },
+       { name: "Farina", cat: "trocken" }, { name: "Semola", cat: "trocken" }, { name: "Hamburger", cat: "trocken" }, { name: "Veggy burger", cat: "trocken" }, 
+       { name: "Croutons", cat: "trocken" }, { name: "Mais", cat: "trocken" }, { name: "Röstzwiebeln", cat: "trocken" },
+       { name: "Öl", cat: "saucen" }, { name: "Olivenöl", cat: "saucen" }, { name: "Salz", cat: "saucen" }, { name: "Pommessalz", cat: "saucen" },
+       { name: "Pfeffer", cat: "saucen" }, { name: "Burger sauce", cat: "saucen" }, { name: "Trüffelcreme", cat: "saucen" },
+       { name: "Pesto", cat: "saucen" }, { name: "Mayo", cat: "saucen" }, { name: "Ketchup", cat: "saucen" }, { name: "Balsamico Creme", cat: "saucen" },
+       { name: "Balsamico dressing", cat: "saucen" }, { name: "French dressing", cat: "saucen" },
+       { name: "Verpackung Pasta", cat: "nonfood" }, { name: "Verpackung Pizza", cat: "nonfood" }, { name: "Verpackung Burger (vorbestellen)", cat: "nonfood" },
+       { name: "Pommes tüten gross", cat: "nonfood" }, { name: "Pommes tüten klein", cat: "nonfood" }, { name: "Frischhaltefolie", cat: "nonfood" },
+       { name: "Servietten", cat: "nonfood" }, { name: "Küchentücher", cat: "nonfood" },
+       { name: "Fettlöser", cat: "reinigung" }, { name: "Grillreiniger", cat: "reinigung" }, { name: "Spülmittel", cat: "reinigung" },
+       { name: "Handschuhe M", cat: "reinigung" }, { name: "Handschuhe L", cat: "reinigung" }, { name: "Handschuhe XL", cat: "reinigung" },
+       { name: "Lappen", cat: "reinigung" }, { name: "Schwamm", cat: "reinigung" }
+     ];
+   }
+   sortAndRender();
+  } catch (error) {
+   document.getElementById('loading-status').innerText = "Fehler beim Laden. Bitte Internetverbindung prüfen.";
+  }
+ }
+ function sortAndRender() {
+  currentArticles.sort((a, b) => categoryOrder.indexOf(a.cat) - categoryOrder.indexOf(b.cat));
+  renderList();
+ }
+ function renderList() {
+  const container = document.getElementById('article-container');
+  container.innerHTML = '';
+  currentArticles.forEach((item, index) => {
+   const qty = orderQuantities[item.name] || 0;
+   const isWarn = item.name.toLowerCase().includes('vorbestell');
+   const row = document.createElement('div');
+   row.className = `item-row cat-${item.cat}`;
+   row.setAttribute('data-name', item.name.toLowerCase());
+   let prefix = {frische:" ", trocken:" ", saucen:" ", nonfood:" ", reinigung:" "}[item.cat] || "";
+   row.innerHTML = `
+    <div class="item-name">
+     <span>${prefix}${item.name.replace('(vorbestellen 3 Tage früher)', '').replace('(vorbestellen)', '')}</span>
+     ${isWarn ? `<span class="item-warn"> Rechtzeitig vorbestellen!</span>` : ''}
+    </div>
+    <div class="qty-controls">
+     <button class="btn-qty" onclick="changeQty('${item.name}', -1, ${index})">-</button>
+     <span class="qty-val" id="qty-${index}" data-qty="${qty}">${qty}</span>
+     <button class="btn-qty" onclick="changeQty('${item.name}', 1, ${index})">+</button>
+    </div>
+   `;
+   container.appendChild(row);
+  });
+ }
+ function changeQty(itemName, change, index) {
+  if (!orderQuantities[itemName]) orderQuantities[itemName] = 0;
+
